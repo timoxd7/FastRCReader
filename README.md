@@ -2,13 +2,13 @@
 A fast and lightweight library to read PWM RC signals from a RC RX (Receiver)
 
 
-##Compatibility
+## Compatibility
 Currently FastRCReader is only compatible with ATmega328P (Arduino UNO & NANO) and ATmega168 (Arduino NANO)
 
 FastRCReader uses ISR (Interrupts). Do not use interrupts in your code or you will get an error somewhere.
 Don't create a variable, object or struct with the name _channel, it is globally used by the FastRCReader.
 
-##How to use
+## How to use
 At the beginning, create a global Object for the FastRCReader:
 
     FastRCReader RC;
