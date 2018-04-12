@@ -25,8 +25,7 @@ To delete a Channel, use:
 
     stopChannel(uint8_t Channel);
 
-To define the ports you want to use, have a look in the FastRCReader.h
-In the FastRCReader.h, use one of the following definitions (also described in there):
+To define the ports you want to use, have a look in the FastRCReader.h. In the FastRCReader.h, use one of the following definitions (also described in there):
 
     Pick one of the following at "PORTS_TO_USE"
     Place 1 to use Port D8 - D13
