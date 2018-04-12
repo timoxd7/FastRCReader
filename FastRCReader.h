@@ -94,8 +94,8 @@ class FastRCReader
 
     void begin();
 
-    void addChannel(uint8_t _channel);
-    void stopChannel(uint8_t _channel);
+    void addChannel(uint8_t Channel);
+    void stopChannel(uint8_t Channel);
 
   private:
 
