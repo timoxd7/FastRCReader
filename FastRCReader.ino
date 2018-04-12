@@ -1,6 +1,6 @@
 #include "FastRCReader.h"
 
-FastRCReader RC;
+RCChannelMapper RC;
 
 void setup(){
   RC.begin();

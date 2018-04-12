@@ -97,11 +97,25 @@ class FastRCReader
     void addChannel(uint8_t Channel);
     void stopChannel(uint8_t Channel);
 
-  private:
-
+    uint16_t getFreq(uint8_t Channel);
 };
 
-//----------------------------------CPP----------------------------------
+class RCChannelMapper : public FastRCReader
+{
+  public:
+
+    void setMap(uint16_t minChannelState, uint16_t maxChannelState, uint8_t Channel, float toMin = -1, float toMax = 1);
+    float getChannel(uint8_t Channel);
+    
+  protected:
+
+    struct channel {
+      uint16_t min[PORTCOUNT], max[PORTCOUNT];
+      float toMin[PORTCOUNT], toMax[PORTCOUNT];
+    } channel;
+};
+
+//----------------------------------CPP-FastRCReader----------------------------------
 
 void FastRCReader::begin() {
   //Stop active interrups / delete global interrupt bit
@@ -172,6 +186,51 @@ ISR(INTERRUPT_VECTOR) { //Interrupt called once any of the pins gets changed
       }
     }
   }
+}
+
+uint16_t FastRCReader::getFreq(uint8_t ch) {
+  //To map the Ports D8 to D13 at 0 to 5
+#if PORTS_TO_USE == 1
+  ch -= 8;
+#endif // PORTS_TO_USE
+
+  //Is the got Channel a valid Channel?
+  if (ch < 0 || ch >= PORTCOUNT) return 0;
+
+  return _channel.frequency[ch];
+}
+
+//----------------------------------CPP-RCChannelMapper----------------------------------
+
+void RCChannelMapper::setMap(uint16_t fromMin, uint16_t fromMax, uint8_t ch, float toMin = -1, float toMax = 1) {
+  //To map the Ports D8 to D13 at 0 to 5
+#if PORTS_TO_USE == 1
+  ch -= 8;
+#endif // PORTS_TO_USE
+
+  //Is the got Channel a valid Channel?
+  if (ch < 0 || ch >= PORTCOUNT) return;
+
+  //Channel min and max equal?
+  if (fromMin == fromMax) return;
+  if (toMin == toMax) return;
+
+  channel.min[ch] = fromMin;
+  channel.max[ch] = fromMax;
+  channel.toMin[ch] = toMin;
+  channel.toMax[ch] = toMax;
+}
+
+float RCChannelMapper::getChannel(uint8_t ch) {
+  //To map the Ports D8 to D13 at 0 to 5
+#if PORTS_TO_USE == 1
+  ch -= 8;
+#endif // PORTS_TO_USE
+
+  //Is the got Channel a valid Channel?
+  if (ch < 0 || ch >= PORTCOUNT) return 0;
+
+  return (_channel.frequency[ch] - (float)channel.min[ch]) * (channel.toMax[ch] - channel.toMin[ch]) / ((float)channel.max[ch] - (float)channel.min[ch]) + channel.toMin[ch];
 }
 
 
