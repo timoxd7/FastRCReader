@@ -26,7 +26,7 @@
 */
 
 #ifndef PORTS_TO_USE
-#define PORTS_TO_USE 3
+#define PORTS_TO_USE 3 //Put in the needed number discribed above here
 #endif
 
 //--------------------------------------------------------------------------------------------------------------
@@ -40,6 +40,8 @@
 const uint8_t portBit[PORTCOUNT] {PB0, PB1, PB2, PB3, PB4, PB5};
 //Set the corresbonding bit for the Pin Change Interrupt Control Register (Register which enables Pin Change Interrupts)
 #define PCICR_BIT PCIE0
+//Set the corresbonding bit for the Pin Change Interrupt Flag Register (Register which tells if a interrupt got triggered)
+#define PCIFR_BIT PCIF0
 //Set the right register for the Pin Change Mask
 #define PINCHANGEMASK PCMSK0
 //Set the corresbonding bit for the Pin Change Mask
@@ -52,6 +54,7 @@ const uint8_t pcmskBit[PORTCOUNT] {PCINT0, PCINT1, PCINT2, PCINT3, PCINT4, PCINT
 #define PORTCOUNT 6
 const uint8_t portBit[PORTCOUNT] {PC0, PC1, PC2, PC3, PC4, PC5};
 #define PCICR_BIT PCIE1
+#define PCIFR_BIT PCIF1
 #define PINCHANGEMASK PCMSK1
 const uint8_t pcmskBit[PORTCOUNT] {PCINT8, PCINT9, PCINT10, PCINT11, PCINT12, PCINT13};
 #else
@@ -61,6 +64,7 @@ const uint8_t pcmskBit[PORTCOUNT] {PCINT8, PCINT9, PCINT10, PCINT11, PCINT12, PC
 #define PORTCOUNT 8
 const uint8_t portBit[PORTCOUNT] {PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7};
 #define PCICR_BIT PCIE2
+#define PCIFR_BIT PCIF2
 #define PINCHANGEMASK PCMSK2
 const uint8_t pcmskBit[PORTCOUNT] {PCINT16, PCINT17, PCINT18, PCINT19, PCINT20, PCINT21, PCINT22, PCINT23};
 #else
@@ -71,9 +75,9 @@ const uint8_t pcmskBit[PORTCOUNT] {PCINT16, PCINT17, PCINT18, PCINT19, PCINT20, 
 #error "There is no port definition in FastRCReader.h!"
 #endif //def PORTS_TO_USE
 
-#endif //1 / B
-#endif //2 / C
 #endif //3 / D
+#endif //2 / C
+#endif //1 / B
 
 //--------------------------------------------------------------------------------------------------------------
 
@@ -121,6 +125,12 @@ void FastRCReader::begin() {
   //Stop active interrups / delete global interrupt bit
   cli();
 
+  //Delete the Flag in the Pin Change Interrupt Flag Register to prevent from false interrupt triggering
+  PCIFR &= ~(1 << PCIFR_BIT);
+
+  //Delete all corresbonding bits in the Pin Change Mask Register to prevent from fals interrupt triggering
+  PINCHANGEMASK = 0b00000000;
+  
   //Set bit in Pin Change Interrupt Control Register for the needed Ports
   PCICR |= (1 << PCICR_BIT);
 
