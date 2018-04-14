@@ -1,5 +1,8 @@
 /*
    Simple sketch to read 5 RC Channels connectet to Pin D3 - D7
+
+   If you want to change the Pins you want to use, you can simply change the pin definitions
+   down below. But don't forget to use the right pin definition in the FastRCReader.h (At PINS_TO_USE)!
 */
 
 #include <FastRCReader.h>
