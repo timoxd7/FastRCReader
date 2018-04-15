@@ -81,7 +81,7 @@ void setup() {
   //Using Calibration from EEPROM?
   bool useFromEEPROM = false;
 
-  if ((byte)EEPROM.read(0) == 42) {
+  if ((byte)EEPROM.read(0) == 42) { //Why? 42! (1 could be written from another program, 42 mostly not)
     //To use it with the Serial Plotter after calibrating it with the Serial Monitor, don't ask
     //(down below)
     if (RECALIBRATE){
