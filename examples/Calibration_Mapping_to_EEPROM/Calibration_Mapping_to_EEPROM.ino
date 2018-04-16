@@ -14,6 +14,9 @@
 #define CHANNELAMOUNT 4
 const uint8_t channelPins[PORTCOUNT] = {3, 4, 5, 7};
 
+//The adress the calibration/mapping will be saved in the EEPROM
+#define EEPROMADRESS 0
+
 RCChannelMapper RC;
 
 //Fuction which should wait until the next Calibration point is triggeret by serial
@@ -59,7 +62,8 @@ void setup() {
     RC.setMap(channelMin, channelMax, channelPins[i]);
   }
 
-  EEPROM.put(0, RC);
+  //Save to EEPROM
+  EEPROM.put(EEPROMADRESS, RC);
   Serial.print("\nSaved in EEPROM, you can now run your own code by reading the RC-Object from the EEPROM");
 
   unsigned long currentTime = millis();

@@ -14,6 +14,9 @@ const uint8_t channelPins[CHANNELAMOUNT] = {3, 4, 5, 7};
 //Servos
 const uint8_t servoPorts[CHANNELAMOUNT] = {6, 9, 10, 11};
 
+//The adress the calibration/mapping is saved in the EEPROM
+#define EEPROMADRESS 0
+
 RCChannelMapper RC;
 Servo servo[CHANNELAMOUNT];
 
@@ -30,7 +33,7 @@ void setup() {
 
   Serial.println("\nAdded/Attached all Ports\n");
 
-  EEPROM.get(0, RC);
+  EEPROM.get(EEPROMADRESS, RC);
 
   Serial.println("Red from EEPROM, starting loop");
 
