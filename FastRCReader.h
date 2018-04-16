@@ -99,7 +99,10 @@ class FastRCReader
     void begin();
 
     void addChannel(uint8_t Channel);
+    void addChannel(uint8_t Channels[]);
+
     void stopChannel(uint8_t Channel);
+    void stopChannel(uint8_t Channels[]);
 
     uint16_t getFreq(uint8_t Channel);
 };
@@ -110,7 +113,7 @@ class RCChannelMapper : public FastRCReader
 
     void setMap(uint16_t minChannelState, uint16_t maxChannelState, uint8_t Channel, float toMin = -1, float toMax = 1);
     float getChannel(uint8_t Channel);
-    
+
   protected:
 
     struct channel {
@@ -130,7 +133,7 @@ void FastRCReader::begin() {
 
   //Delete all corresbonding bits in the Pin Change Mask Register to prevent from fals interrupt triggering
   PINCHANGEMASK = 0b00000000;
-  
+
   //Set bit in Pin Change Interrupt Control Register for the needed Ports
   PCICR |= (1 << PCICR_BIT);
 
@@ -153,6 +156,14 @@ void FastRCReader::addChannel(uint8_t ch) {
   PINCHANGEMASK |= (1 << pcmskBit[ch]); //Add interrupt for the needed Channel
 }
 
+void FastRCReader::addChannel(uint8_t ch[]) {
+  uint8_t channelAmount = sizeof(ch);
+
+  for (uint8_t i = 0; i < channelAmount; i++) {
+    addChannel(ch[i]);
+  }
+}
+
 void FastRCReader::stopChannel(uint8_t ch) {
   //To map the Ports D8 to D13 at 0 to 5
 #if PORTS_TO_USE == 1
@@ -166,6 +177,26 @@ void FastRCReader::stopChannel(uint8_t ch) {
 
   PINCHANGEMASK &= ~(1 << pcmskBit[ch]); //Stop triggering interrupt by the given pin
   DDRD |= (1 << portBit[ch]); //Set the pin which shoulden't be used anymore as output
+}
+
+void FastRCReader::stopChannel(uint8_t ch[]) {
+  uint8_t channelAmount = sizeof(ch);
+
+  for (uint8_t i = 0; i < channelAmount; i++) {
+    stopChannel(ch[i]);
+  }
+}
+
+uint16_t FastRCReader::getFreq(uint8_t ch) {
+  //To map the Ports D8 to D13 at 0 to 5
+#if PORTS_TO_USE == 1
+  ch -= 8;
+#endif // PORTS_TO_USE
+
+  //Is the got Channel a valid Channel?
+  if (ch < 0 || ch >= PORTCOUNT) return 0;
+
+  return _channel.frequency[ch];
 }
 
 
@@ -196,18 +227,6 @@ ISR(INTERRUPT_VECTOR) { //Interrupt called once any of the pins gets changed
       }
     }
   }
-}
-
-uint16_t FastRCReader::getFreq(uint8_t ch) {
-  //To map the Ports D8 to D13 at 0 to 5
-#if PORTS_TO_USE == 1
-  ch -= 8;
-#endif // PORTS_TO_USE
-
-  //Is the got Channel a valid Channel?
-  if (ch < 0 || ch >= PORTCOUNT) return 0;
-
-  return _channel.frequency[ch];
 }
 
 //----------------------------------CPP-RCChannelMapper----------------------------------
