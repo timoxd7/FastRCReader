@@ -58,3 +58,19 @@ To get the mapped value of a Channel, use:
 
     RC.getChannel(uint8_t Channel);
     //Returns a float
+
+## Pre-Calibration
+If you want to pre-calibrate your RC before using with your own code, just use the Calibration_Mapping_to_EEPROM example. Just change the CHANNELAMOUNT definition and channelPins variable to your own needs. After calibrating your RC, the calibration will be saved in the EEPROM. Just add the following lines of code to your sketch to load it back again:
+
+    #include <FastRCReader.h>
+    #include <EEPROM.h>
+    
+    RCChannelMapper RC;
+    #define EEPROMADRESS 0
+    
+    void setup(){
+        RC.begin();
+        EEPROM.get(EEPROMADRESS, RC);
+    }
+
+If you want to use the EEPROM for your own needs, you can also change the adress to match your own code (don't forget to also change the adress in the calibration example) with the EEPROMADRESS definition (by default 0, so just writing/reading to/from the beginning of the EEPROM).
