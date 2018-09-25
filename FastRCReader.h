@@ -1,3 +1,14 @@
+/*
+  FastRCReader for Arduino Nano and Uno to read fast and accurat RC Data.
+
+  Written by Timo Meyer.
+  The library is contributed as-is.
+
+  To specify the right ports you want to use as input,
+  scroll a bit down and select the right ones in the config part.
+*/
+
+
 //Directly accessing the Registers of the AVR-Processor. Only compatible with AVR-based boards
 #ifndef __AVR__
 #error "Sorry, the FastRCReader.h is optimised for Arduino AVR Boards (e.g. Uno, Nano...) Please use a different library"
@@ -29,7 +40,7 @@
 #define PORTS_TO_USE 3 //Put in the needed number discribed above here
 #endif
 
-//--------------------------------------------------------------------------------------------------------------
+//----------------------------------End-Configuration-----------------------------------------------------------
 
 #if PORTS_TO_USE == 1
 //Interrupt vector definition
@@ -46,6 +57,12 @@ const uint8_t portBit[PORTCOUNT] {PB0, PB1, PB2, PB3, PB4, PB5};
 #define PINCHANGEMASK PCMSK0
 //Set the corresbonding bit for the Pin Change Mask
 const uint8_t pcmskBit[PORTCOUNT] {PCINT0, PCINT1, PCINT2, PCINT3, PCINT4, PCINT5};
+//Define the Port Input/Output Register
+#define INPUT_OUTPUT_REGISTER DDRB
+//Define the Port Output Data Register
+#define OUTPUT_DATA_REGISTER PORTB
+//Define the Pin Input Save Register
+#define INPUT_DATA_REGISTER PINB
 #else
 
 //The same just for the other cases, so no commentary
@@ -57,6 +74,12 @@ const uint8_t portBit[PORTCOUNT] {PC0, PC1, PC2, PC3, PC4, PC5};
 #define PCIFR_BIT PCIF1
 #define PINCHANGEMASK PCMSK1
 const uint8_t pcmskBit[PORTCOUNT] {PCINT8, PCINT9, PCINT10, PCINT11, PCINT12, PCINT13};
+//Define the Port Input/Output Register
+#define INPUT_OUTPUT_REGISTER DDRC
+//Define the Port Output Data Register
+#define OUTPUT_DATA_REGISTER PORTC
+//Define the Pin Input Save Register
+#define INPUT_DATA_REGISTER PINC
 #else
 
 #if PORTS_TO_USE == 3
@@ -67,6 +90,12 @@ const uint8_t portBit[PORTCOUNT] {PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7};
 #define PCIFR_BIT PCIF2
 #define PINCHANGEMASK PCMSK2
 const uint8_t pcmskBit[PORTCOUNT] {PCINT16, PCINT17, PCINT18, PCINT19, PCINT20, PCINT21, PCINT22, PCINT23};
+//Define the Port Input/Output Register
+#define INPUT_OUTPUT_REGISTER DDRD
+//Define the Port Output Data Register
+#define OUTPUT_DATA_REGISTER PORTD
+//Define the Pin Input Save Register
+#define INPUT_DATA_REGISTER PIND
 #else
 
 #ifdef PORTS_TO_USE
@@ -152,7 +181,7 @@ void FastRCReader::addChannel(uint8_t ch) {
 
   _channel.active |= (1 << ch); //Activating bit accoding to its pin
 
-  DDRD &= ~(1 << portBit[ch]); //Set the needed pin as input
+  INPUT_OUTPUT_REGISTER &= ~(1 << portBit[ch]); //Set the needed pin as input
   PINCHANGEMASK |= (1 << pcmskBit[ch]); //Add interrupt for the needed Channel
 }
 
@@ -176,7 +205,7 @@ void FastRCReader::stopChannel(uint8_t ch) {
   _channel.active &= ~(1 << ch); //Deactivate channel
 
   PINCHANGEMASK &= ~(1 << pcmskBit[ch]); //Stop triggering interrupt by the given pin
-  DDRD |= (1 << portBit[ch]); //Set the pin which shoulden't be used anymore as output
+  INPUT_OUTPUT_REGISTER |= (1 << portBit[ch]); //Set the pin which shoulden't be used anymore as output
 }
 
 void FastRCReader::stopChannel(uint8_t ch[]) {
@@ -209,7 +238,7 @@ ISR(INTERRUPT_VECTOR) { //Interrupt called once any of the pins gets changed
     //Channel active?
     if (_channel.active & (1 << i)) { //same as i would write _channel.active[i] by using a boolean array
       //Port HIGH?
-      if (PIND & (1 << portBit[i])) { //-> Port HIGH
+      if (INPUT_DATA_REGISTER & (1 << portBit[i])) { //-> Port HIGH
         //Port LOW last time?
         if (~_channel.lastStatus & (1 << i)) {
           //Save new status
