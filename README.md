@@ -38,7 +38,7 @@ To define the ports you want to use, have a look in the FastRCReader.h. In the F
     Place 3 to use Port D0 - D7
 
 ## How to use RCChannelMapper
-RCChannelMapper is a chield of FastRCReader, so you can use all commands described above. You can NOT use RCChannelMapper and FastRCReader at the same time! Only create one of both instances, RCChannelMapper does the same but more.
+RCChannelMapper is a child of FastRCReader, so you can use all commands described above. You can NOT use RCChannelMapper and FastRCReader at the same time! Only create one of both instances, RCChannelMapper does the same but more.
 
 At the beginning, create a global Object for the RCChannelMapper:
 
