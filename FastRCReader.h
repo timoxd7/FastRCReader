@@ -129,9 +129,11 @@ class FastRCReader
 
     void addChannel(uint8_t Channel);
     void addChannel(uint8_t Channels[]);
+    void addChannel(uint8_t *Channels, uint8_t ChannelAmount);
 
     void stopChannel(uint8_t Channel);
     void stopChannel(uint8_t Channels[]);
+    void stopChannel(uint8_t *Channels, uint8_t ChannelAmount);
 
     uint16_t getFreq(uint8_t Channel);
 };
@@ -186,9 +188,11 @@ void FastRCReader::addChannel(uint8_t ch) {
 }
 
 void FastRCReader::addChannel(uint8_t ch[]) {
-  uint8_t channelAmount = sizeof(ch);
+  addChannel(ch[0], sizeof(ch));
+}
 
-  for (uint8_t i = 0; i < channelAmount; i++) {
+void FastRCReader::addChannel(uint8_t *ch, uint8_t channelAmount) {
+  for (uint8_t i = 0; i < channelAmount; i++){
     addChannel(ch[i]);
   }
 }
@@ -209,9 +213,11 @@ void FastRCReader::stopChannel(uint8_t ch) {
 }
 
 void FastRCReader::stopChannel(uint8_t ch[]) {
-  uint8_t channelAmount = sizeof(ch);
+  stopChannel(ch[0], sizeof(ch));
+}
 
-  for (uint8_t i = 0; i < channelAmount; i++) {
+void FastRCReader::stopChannel(uint8_t *ch, uint8_t channelAmount) {
+  for (uint8_t i = 0; i < channelAmount; i++){
     stopChannel(ch[i]);
   }
 }
