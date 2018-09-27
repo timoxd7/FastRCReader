@@ -6,7 +6,7 @@ A fast and lightweight library to read PWM RC signals from a RC RX (Receiver)
 Currently FastRCReader is only compatible with ATmega328P (Arduino UNO & NANO) and ATmega168 (Arduino NANO)
 
 FastRCReader uses ISR (Interrupts). Do not use interrupts in your code or you will get an error somewhere.
-Don't create a variable, object or struct with the name _channel, it is globally used by the FastRCReader.
+Don't create a variable, object or struct with the name _channel, it is globally used by the FastRCReader after you included the library.
 
 ## How to use FastRCReader
 At the beginning, create a global Object for the FastRCReader:
@@ -20,22 +20,49 @@ To initalize the RC, start the RC in the setup() function:
 To add a Channel for your RC, use:
 
     RC.addChannel(uint8_t Channel);
+    
+If you don't know what an uint8_t is, it is basically a half unsigned int.
 
 To delete a Channel, use:
 
     RC.stopChannel(uint8_t Channel);
+
+To add more than one Channel at once, you can add or stop an array of Channels:
+
+    RC.addChannel(uint8_t Channels[]);
+    RC.addChannel(uint8_t Channels[], uint8_t ChannelAmount);
+    
+    RC.stopChannel(uint8_t Channels[]);
+    RC.stopChannel(uint8_t Channels[], uint8_t ChannelAmount);
 
 To get the Frequency of a given Channel, use:
 
     RC.getFreq(uint8_t Channel);
     //Returns an unsigned int (uint16_t)
 
-To define the ports you want to use, have a look in the FastRCReader.h. In the FastRCReader.h, use one of the following definitions (also described in there):
+To define the ports you want to use, have a look in the FastRCReader.h. In the FastRCReader.h, use one of the following definitions (also described in there). You can also #define the PORTS_TO_USE before the #include in your own sketch to specify the Ports to use. At the moment, you can only use one of the port-ranges at a time:
 
     Pick one of the following at "PORTS_TO_USE"
-    Place 1 to use Port D8 - D13
-    Place 2 to use Port A0 - A5
-    Place 3 to use Port D0 - D7
+    Use 1 to use Port D8 - D13
+    Use 2 to use Port A0 - A5
+    Use 3 to use Port D0 - D7
+
+The Channels are directly mapped to the Pins of the Arduino:
+
+    D0 = Channel 0
+    D1 = Channel 1
+    ...
+    D7 = Channel 7
+    
+    D8 = Channel 0
+    D9 = Channel 1
+    ...
+    D13 = Channel 5
+    
+    A0 = Channel 0
+    A1 = Channel 1
+    ...
+    A5 = Channel 5
 
 ## How to use RCChannelMapper
 RCChannelMapper is a child of FastRCReader, so you can use all commands described above. You can NOT use RCChannelMapper and FastRCReader at the same time! Only create one of both instances, RCChannelMapper does the same but more.
