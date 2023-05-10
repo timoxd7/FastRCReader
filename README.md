@@ -1,6 +1,9 @@
 # FastRCReader
 A fast and lightweight library to read PWM RC signals from a RC RX (Receiver)
 
+## Added changes
+- Added lastTimeIntus() function to the class FastRCReader to know when is occurred the last interrupt (last time interrupt in microseconds). For example, there is an RC receiver that stops emitting the PWM when the radio is disconnected, so a failsafe mode can be activated if more than X us passes without receiving an interruption.
+- Added isRecvOn() and recvTimeout() function to the class RCChannelMapper to kown if the radio is on or off based on last interrupt establishing a timeout when is received the last interrupt. The default timeout value is 20000 us.
 
 ## Compatibility
 Currently FastRCReader is only compatible with ATmega328P (Arduino UNO & NANO) and ATmega168 (Arduino NANO)
