@@ -118,6 +118,8 @@ struct _channel { //needs to be global because of the Interrupt. Using struct, i
   uint16_t lastDown[8]; //last time the channel was LOW. To mesure the HIGH time
 } _channel;
 
+volatile unsigned long FastRCReader_currentTime;
+
 
 //----------------------------------Header----------------------------------
 
@@ -138,10 +140,6 @@ class FastRCReader
     uint16_t getFreq(uint8_t Channel);
 
     unsigned long lastTimeIntus(); 
-
-  protected: 
-    
-    volatile unsigned long currentTime;
 };
 
 class RCChannelMapper : public FastRCReader
@@ -246,13 +244,13 @@ uint16_t FastRCReader::getFreq(uint8_t ch) {
 }
 
 unsigned long FastRCReader::lastTimeIntus(){
-  return currentTime;
+  return FastRCReader_currentTime;
 }
 
 
 ISR(INTERRUPT_VECTOR) { //Interrupt called once any of the pins gets changed
   //Save the current time / Time almost exactly after the event/portchange happened
-  currentTime = micros();
+  FastRCReader_currentTime = micros();
 
   //Do for every Port
   for (uint8_t i = 0; i < PORTCOUNT; i++) {
@@ -265,14 +263,14 @@ ISR(INTERRUPT_VECTOR) { //Interrupt called once any of the pins gets changed
           //Save new status
           _channel.lastStatus |= (1 << i);
           //Save time at last status change
-          _channel.lastDown[i] = currentTime;
+          _channel.lastDown[i] = FastRCReader_currentTime;
         }
         //Port HIGH last time -> do nothing
       } else { //-> Port LOW
         //Port HIGH last time?
         if (_channel.lastStatus & (1 << i)) {
           _channel.lastStatus &= ~(1 << i);
-          _channel.frequency[i] = currentTime - _channel.lastDown[i];
+          _channel.frequency[i] = FastRCReader_currentTime - _channel.lastDown[i];
         }
       }
     }
@@ -313,10 +311,10 @@ float RCChannelMapper::getChannel(uint8_t ch) {
 }
 
 bool RCChannelMapper::isRecvOn(){
-  return (micros() - currentTime) > timeout_;
+  return (micros() - FastRCReader_currentTime) > timeout_;
 }
 
-void recvTimeout(unsigned long timeout){
+void RCChannelMapper::recvTimeout(unsigned long timeout){
   timeout_ = timeout;
 } 
 
