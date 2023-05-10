@@ -37,7 +37,7 @@
 */
 
 #ifndef PORTS_TO_USE
-#define PORTS_TO_USE 3 //Put in the needed number discribed above here
+#define PORTS_TO_USE 2 //Put in the needed number discribed above here
 #endif
 
 //----------------------------------End-Configuration-----------------------------------------------------------
@@ -311,7 +311,7 @@ float RCChannelMapper::getChannel(uint8_t ch) {
 }
 
 bool RCChannelMapper::isRecvOn(){
-  return (micros() - FastRCReader_currentTime) > timeout_;
+  return (micros() - FastRCReader_currentTime) < timeout_;
 }
 
 void RCChannelMapper::recvTimeout(unsigned long timeout){
