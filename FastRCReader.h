@@ -136,6 +136,12 @@ class FastRCReader
     void stopChannel(uint8_t *Channels, uint8_t ChannelAmount);
 
     uint16_t getFreq(uint8_t Channel);
+
+    unsigned long lastTimeIntus(); 
+
+  protected: 
+    
+    volatile unsigned long currentTime;
 };
 
 class RCChannelMapper : public FastRCReader
@@ -145,7 +151,12 @@ class RCChannelMapper : public FastRCReader
     void setMap(uint16_t minChannelState, uint16_t maxChannelState, uint8_t Channel, float toMin = -1, float toMax = 1);
     float getChannel(uint8_t Channel);
 
+    bool isRecvOn();
+    void recvTimeout(unsigned long timeout); 
+
   protected:
+
+    unsigned long timeout_ = 20000; // in us
 
     struct channel {
       uint16_t min[PORTCOUNT], max[PORTCOUNT];
@@ -234,10 +245,14 @@ uint16_t FastRCReader::getFreq(uint8_t ch) {
   return _channel.frequency[ch];
 }
 
+unsigned long FastRCReader::lastTimeIntus(){
+  return currentTime;
+}
+
 
 ISR(INTERRUPT_VECTOR) { //Interrupt called once any of the pins gets changed
   //Save the current time / Time almost exactly after the event/portchange happened
-  unsigned long currentTime = micros();
+  currentTime = micros();
 
   //Do for every Port
   for (uint8_t i = 0; i < PORTCOUNT; i++) {
@@ -297,5 +312,12 @@ float RCChannelMapper::getChannel(uint8_t ch) {
   return (_channel.frequency[ch] - (float)channel.min[ch]) * (channel.toMax[ch] - channel.toMin[ch]) / ((float)channel.max[ch] - (float)channel.min[ch]) + channel.toMin[ch];
 }
 
+bool RCChannelMapper::isRecvOn(){
+  return (micros() - currentTime) > timeout_;
+}
+
+void recvTimeout(unsigned long timeout){
+  timeout_ = timeout;
+} 
 
 #endif //FastRCReader_h
